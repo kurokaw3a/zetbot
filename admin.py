@@ -79,6 +79,8 @@ async def handle_props_edit_or_delete(message: Message, state: FSMContext):
         
         if props_id is not None:
             database.delete_new_props(props_id)
+            nprops = database.get_bot_data()
+            constants.bot_new_props = nprops["new_props"]
             await message.answer("✅ Реквизит успешно удалён.", reply_markup=main_admin_kb())
             await state.set_state(BotState.admin)
         else:
