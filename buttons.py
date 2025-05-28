@@ -105,7 +105,7 @@ def main_inline_admin_withdraw_kb():
 def subscribe_kb():
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text="Подписаться", url="https://t.me/ocean_kg"),
+        InlineKeyboardButton(text="Подписаться", url="https://t.me/zetkassakg"),
         InlineKeyboardButton(text="Проверить", callback_data="subscribe"),
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=builder.export())
