@@ -17,8 +17,11 @@ os.makedirs(IMG_DIR, exist_ok=True)
 
 async def send_info(message: Message):
     data = database.get_bot_data()
+    admin = data["admin"]
+    props = data["props"]
+    new_props = data["new_props"]
     
-    await message.answer(f"Поддержка: @{data["admin"]}\nРеквизиты: {data["props"]}, {', '.join(data["new_props"])}")
+    await message.answer(f"Поддержка: @{admin}\nРеквизиты: {props}, {', '.join(new_props)}")
     path = os.path.join(IMG_DIR, "qr.jpg")
     
     if os.path.exists(path):
