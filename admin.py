@@ -62,12 +62,10 @@ async def handle_props_select(message: Message, state: FSMContext):
 async def handle_props(message: Message, state: FSMContext):
      props = message.text
      
-     constants.bot_props = props
      
      if props:
         await message.answer(f"Реквизит обновлен и сохранен. Новый реквизит: {props}", reply_markup=main_admin_kb())
         database.update_props(props)
-        constants.bot_props = props
         await state.set_state(BotState.admin)
      else:
         await message.answer("Произошла ошибка при обновлении данных. Попробуйте снова.", reply_markup=main_admin_kb())
@@ -79,8 +77,7 @@ async def handle_props_edit_or_delete(message: Message, state: FSMContext):
         
         if props_id is not None:
             database.delete_new_props(props_id)
-            nprops = database.get_bot_data()
-            constants.bot_new_props = nprops["new_props"]
+
             await message.answer("✅ Реквизит успешно удалён.", reply_markup=main_admin_kb())
             await state.set_state(BotState.admin)
         else:
