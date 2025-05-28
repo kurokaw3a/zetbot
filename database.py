@@ -56,7 +56,6 @@ def update_props(new_props):
     with get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("UPDATE Bot set props = ? WHERE id = ?", (new_props, 1))
-        cursor.connection.commit()
 
 def update_new_props(props_id, new_props):
     with get_connection() as conn:
