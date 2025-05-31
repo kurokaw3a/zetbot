@@ -234,8 +234,10 @@ async def withdraw_code_handler(message: Message, state: FSMContext) -> None:
         
         # await message.bot.send_message(constants.chat, f"{html.bold('ЗАПРОС НА ВЫВОД')}\n\nПользователь: @{username}\nМетод: {method}\nРеквизит: {html.code(props)}\n1X ID: {html.code(xid)}\nКод: {html.code(code)}\nСумма: {amount}")
         # await message.bot.send_message(constants.chat, str(message.chat.id))
-        
-        await message.bot.send_message(constants.withdraw_chat_id, f"{html.bold('ЗАПРОС НА ВЫВОД')}\n\nПользователь: @{username}\nМетод: {method}\nРеквизит: {html.code(props)}\n1X ID: {html.code(xid)}\nКод: {html.code(code)}\nСумма: {amount}")
+        if message.from_user.username != 'None':
+         await message.bot.send_message(constants.withdraw_chat_id, f"{html.bold('ЗАПРОС НА ВЫВОД')}\n\nПользователь: @{username}\nМетод: {method}\nРеквизит: {html.code(props)}\n1X ID: {html.code(xid)}\nКод: {html.code(code)}\nСумма: {amount}")
+        else:
+         await message.bot.send_message(constants.withdraw_chat_id, f"{html.bold('ЗАПРОС НА ВЫВОД')}\n\nПользователь: @{message.from_user.first_name}\nМетод: {method}\nРеквизит: {html.code(props)}\n1X ID: {html.code(xid)}\nКод: {html.code(code)}\nСумма: {amount}")
         await message.bot.send_message(constants.withdraw_chat_id, str(message.chat.id), reply_markup=buttons.main_inline_admin_withdraw_kb())
         await state.set_state(BotState.waiting_response)
 # 
@@ -363,7 +365,10 @@ async def check_handler(message: Message, state: FSMContext):
     # await message.bot.send_message(constants.chat, str(message.chat.id)) 
      
     await message.bot.forward_message(constants.replenish_chat_id, message.chat.id, message.message_id)
-    await message.bot.send_message(constants.replenish_chat_id, f"Пользователь: @{message.from_user.username}\n1X ID: {html.code(xid)}\nМетод: {method}")
+    if message.from_user.username != 'None':
+     await message.bot.send_message(constants.replenish_chat_id, f"Пользователь: @{message.from_user.username}\n1X ID: {html.code(xid)}\nМетод: {method}")
+    else:
+     await message.bot.send_message(constants.replenish_chat_id, f"Пользователь: {message.from_user.first_name}\n1X ID: {html.code(xid)}\nМетод: {method}")    
     await message.bot.send_message(constants.replenish_chat_id, str(message.chat.id), reply_markup=buttons.main_inline_admin_replenish_kb())
     await state.set_state(BotState.waiting_response)
 
