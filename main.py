@@ -14,6 +14,8 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
+import cv2
+
 import admin
 import constants
 import buttons
@@ -295,7 +297,14 @@ async def sum_handler (message: Message, state: FSMContext) -> None:
              path = os.path.join(IMG_DIR, "qr.jpg")
              if os.path.exists(path):
               photo = FSInputFile(path)
-              await message.answer_photo(photo)
+              
+              img = cv2.imread(path)
+              qrdetect = cv2.QRCodeDetector()
+              url, a, b = qrdetect.detectAndDecode(img)
+              print(url)
+              
+              
+              await message.answer_photo(photo, reply_markup=buttons.payment_kb(url))
             else:
              data = database.get_bot_data()
              props = data["props"]
