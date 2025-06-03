@@ -114,7 +114,7 @@ def subscribe_kb():
 def payment_kb(url):
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text="Оплатить", url=url),
+        InlineKeyboardButton(text="Оплатить", url=url or "https://t.me/zetkassakg"),
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=builder.export())
     return keyboard
