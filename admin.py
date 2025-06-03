@@ -46,8 +46,10 @@ async def handle_admin(message: Message, state: FSMContext):
 async def handle_props_select(message: Message, state: FSMContext):
      
      props = message.text
+     data = database.get_bot_data()
+     propsd = data["props"]
      
-     if(props == constants.bot_props + " ⭐"):
+     if(props == propsd + " ⭐"):
       await state.set_state(EditBot.waiting_for_props)
       await message.answer("Введите новое значение:", reply_markup=main_cancel_kb())
      else:
