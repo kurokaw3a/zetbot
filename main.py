@@ -4,7 +4,6 @@ import os
 import sys
 import database
 import random
-import qr as qread
 
 from aiogram import Bot, Dispatcher, html, F
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -298,7 +297,7 @@ async def sum_handler (message: Message, state: FSMContext) -> None:
              if os.path.exists(path):
               photo = FSInputFile(path)
               
-              await message.answer_photo(photo, reply_markup=buttons.payment_kb(qread.url))
+              await message.answer_photo(photo)
             else:
              data = database.get_bot_data()
              props = data["props"]
