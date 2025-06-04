@@ -21,8 +21,19 @@ def get_connection():
     finally:
         connection.close() 
 
+def check_qr_column():
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(BOT)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'qr' not in columns:
+            cursor.execute("ALTER TABLE BOT ADD COLUMN qr TEXT")
+            conn.commit()
+
 def get_bot_data():
     with get_connection() as conn:
+        check_qr_column()
         cursor = conn.cursor()
         cursor.execute("SELECT admin, props, qr FROM Bot LIMIT 1")
         row = cursor.fetchone()
@@ -111,15 +122,7 @@ def update_user(user_id: int, username: str, xid: int):
             current_xid = result[0]
             if current_xid != xid:
                 cursor.execute("UPDATE Users SET xid = ? WHERE id = ?",(xid, user_id))
-def check_qr_column():
-    with get_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(BOT)")
-        columns = [row[1] for row in cursor.fetchall()]
-        
-        if 'qr' not in columns:
-            cursor.execute("ALTER TABLE BOT ADD COLUMN qr TEXT")
-            conn.commit()
+
                 
 def update_qr(link: str):
     check_qr_column()
