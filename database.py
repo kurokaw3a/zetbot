@@ -9,7 +9,7 @@ def get_connection():
     connection = sqlite3.connect("zet.db")
     cursor = connection.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS Bot (id INTEGER PRIMARY KEY, admin TEXT NOT NULL, props TEXT NOT NULL, qr TEXT)''')
-    cursor.execute('INSERT OR IGNORE INTO Bot (id, admin, props) VALUES (?, ?, ?)', (1, 'zetadmin', "996100200300"))
+    cursor.execute('INSERT OR IGNORE INTO Bot (id, admin, props, qr) VALUES (?, ?, ?, ?)', (1, 'zetadmin', "996100200300", "qr_link"))
     cursor.execute('''CREATE TABLE IF NOT EXISTS Props (id INTEGER PRIMARY KEY, props TEXT)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY, username TEXT, xid INTEGER)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS Payments (date TEXT, id INTEGER, username TEXT, xid INTEGER, sum INTEGER, method TEXT)''')
@@ -21,21 +21,11 @@ def get_connection():
     finally:
         connection.close() 
 
-def check_qr_column():
-    with get_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(BOT)")
-        columns = [row[1] for row in cursor.fetchall()]
-        
-        if 'qr' not in columns:
-            cursor.execute("ALTER TABLE BOT ADD COLUMN qr TEXT")
 
 def get_bot_data():
     with get_connection() as conn:
         cursor = conn.cursor()
-        
-        check_qr_column()
-        
+               
         cursor.execute("SELECT admin, props, qr FROM Bot LIMIT 1")
         row = cursor.fetchone()
 
@@ -124,6 +114,14 @@ def update_user(user_id: int, username: str, xid: int):
             if current_xid != xid:
                 cursor.execute("UPDATE Users SET xid = ? WHERE id = ?",(xid, user_id))
 
+def check_qr_column():
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(BOT)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'qr' not in columns:
+            cursor.execute("ALTER TABLE BOT ADD COLUMN qr TEXT")
                 
 def update_qr(link: str):
     check_qr_column()
