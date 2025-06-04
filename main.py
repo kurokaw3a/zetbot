@@ -297,6 +297,7 @@ async def sum_handler (message: Message, state: FSMContext) -> None:
               data = database.get_bot_data()
               qr_link = data["qr"]
               
+              
               await message.answer_photo(photo, reply_markup=buttons.payment_kb(qr_link))
             else:
              data = database.get_bot_data()
