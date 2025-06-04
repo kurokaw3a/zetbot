@@ -26,7 +26,7 @@ def get_bot_data():
     with get_connection() as conn:
         cursor = conn.cursor()
                
-        cursor.execute("SELECT admin, props, qr FROM Bot LIMIT 1")
+        cursor.execute("SELECT admin, props FROM Bot LIMIT 1")
         row = cursor.fetchone()
 
         if row:
@@ -37,7 +37,6 @@ def get_bot_data():
                 "admin": row[0],
                 "props": row[1],
                 "new_props": new_props,
-                "qr": row[2]
             }
         else:
             return {"admin": None, "props": None, "new_props": [], "qr": None}
