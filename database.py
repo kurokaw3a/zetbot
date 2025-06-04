@@ -33,8 +33,8 @@ def check_qr_column():
 
 def get_bot_data():
     with get_connection() as conn:
-        check_qr_column()
         cursor = conn.cursor()
+        check_qr_column()
         cursor.execute("SELECT admin, props, qr FROM Bot LIMIT 1")
         row = cursor.fetchone()
 
