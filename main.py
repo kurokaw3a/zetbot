@@ -4,6 +4,7 @@ import os
 import sys
 import database
 import random
+from dotenv import load_dotenv
 
 from aiogram import Bot, Dispatcher, html, F
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -22,7 +23,7 @@ import buttons
 IMG_DIR = "images"
 os.makedirs(IMG_DIR, exist_ok=True)
 
-TOKEN = "8199026275:AAFWZcKNBb4XACQ0xyy8khhtAZ03sii3dvk"
+
 
 dp = Dispatcher(storage=MemoryStorage())
 
@@ -54,14 +55,11 @@ class BotState(StatesGroup):
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message, state) -> None:
-    status = await message.bot.get_chat_member(constants.channel, message.chat.id)
-    if status.status == "kicked":
-        await message.answer("Вы были заблокировны")
-    else:
-     if status.status != "left" and message.chat.id != constants.replenish_chat_id and message.chat.id != constants.withdraw_chat_id and message.chat.id != constants.channel:
+    # status = await message.bot.get_chat_member(constants.channel, message.chat.id)
+    # if status.status != "left" and message.chat.id != constants.replenish_chat_id and message.chat.id != constants.withdraw_chat_id and message.chat.id != constants.channel:
       await state.clear()
       await message.answer(f"Привет, {html.bold(message.from_user.full_name)}!\n\n📲 Пополнение/Вывод: 0%\n⏳ Моментальные пополнения\n\nСлужба поддержки: @" + constants.bot_admin, reply_markup=buttons.main_kb(message.from_user.username))
-     else:
+    # else:
       await message.answer("Что-бы продолжить подпишитесь на канал", reply_markup=buttons.subscribe_kb())
         
 @dp.message(F.text == "Отменить")
@@ -296,8 +294,10 @@ async def sum_handler (message: Message, state: FSMContext) -> None:
              path = os.path.join(IMG_DIR, "qr.jpg")
              if os.path.exists(path):
               photo = FSInputFile(path)
+              data = database.get_bot_data()
+              qr_link = data["qr"]
               
-              await message.answer_photo(photo)
+              await message.answer_photo(photo, reply_markup=buttons.payment_kb(qr_link))
             else:
              data = database.get_bot_data()
              props = data["props"]
@@ -430,6 +430,10 @@ async def query_handler(callback: CallbackQuery) -> None:
             
             
 async def main() -> None:
+    load_dotenv('.env')
+    
+    TOKEN = os.getenv("TOKEN")
+    
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await dp.start_polling(bot)
 

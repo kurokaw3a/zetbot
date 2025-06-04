@@ -8,7 +8,7 @@ import time
 def get_connection():
     connection = sqlite3.connect("zet.db")
     cursor = connection.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Bot (id INTEGER PRIMARY KEY, admin TEXT NOT NULL, props TEXT NOT NULL)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Bot (id INTEGER PRIMARY KEY, admin TEXT NOT NULL, props TEXT NOT NULL, qr TEXT)''')
     cursor.execute('INSERT OR IGNORE INTO Bot (id, admin, props) VALUES (?, ?, ?)', (1, 'zetadmin', "996100200300"))
     cursor.execute('''CREATE TABLE IF NOT EXISTS Props (id INTEGER PRIMARY KEY, props TEXT)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY, username TEXT, xid INTEGER)''')
@@ -24,7 +24,7 @@ def get_connection():
 def get_bot_data():
     with get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT admin, props FROM Bot LIMIT 1")
+        cursor.execute("SELECT admin, props, qr FROM Bot LIMIT 1")
         row = cursor.fetchone()
 
         if row:
@@ -34,10 +34,11 @@ def get_bot_data():
             return {
                 "admin": row[0],
                 "props": row[1],
-                "new_props": new_props 
+                "new_props": new_props,
+                "qr": row[2]
             }
         else:
-            return {"admin": None, "props": None, "new_props": []}
+            return {"admin": None, "props": None, "new_props": [], "qr": None}
 
 
 def update_admin(new_admin):
@@ -110,8 +111,21 @@ def update_user(user_id: int, username: str, xid: int):
             current_xid = result[0]
             if current_xid != xid:
                 cursor.execute("UPDATE Users SET xid = ? WHERE id = ?",(xid, user_id))
+def check_qr_column():
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(BOT)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'qr' not in columns:
+            cursor.execute("ALTER TABLE BOT ADD COLUMN qr TEXT")
+            conn.commit()
                 
-                
+def update_qr(link: str):
+    check_qr_column()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE BOT SET qr = ? WHERE id = ?",(link, 1))          
                 
 def update_payment_history(user_id, username, xid, amount, method):
     with get_connection() as conn:
@@ -125,4 +139,3 @@ def update_withdraw_history(user_id, username, xid, code, method, props):
         cursor = conn.cursor()
         date = time.strftime("%d.%m.%Y-%H:%M")         
         cursor.execute("""INSERT INTO Withdraws (date, id, username, xid, code, method, props) VALUES (?, ?, ?, ?, ?, ?, ?)""", (date, user_id, username, xid, code, method, props))
-                

@@ -9,10 +9,12 @@ from buttons import main_admin_kb
 from buttons import main_cancel_kb
 from buttons import main_admin_props_kb
 from buttons import main_admin_props_edit_kb
+from decoder import decode_qr
 import database
 
 DB_PATH = "ocean.db"
 IMG_DIR = "images"
+
 os.makedirs(IMG_DIR, exist_ok=True)
 
 async def send_info(message: Message):
@@ -116,10 +118,15 @@ async def handle_photo(message: Message, state: FSMContext):
     file = await message.bot.get_file(photo.file_id)
    
     new_path = os.path.join(IMG_DIR, f"qr.jpg")
-    await message.bot.download_file(file.file_path, destination=new_path)
-
-    await message.answer("Изображение обновлено и сохранено.", reply_markup=main_admin_kb())
-    await state.set_state(BotState.admin)
+    await message.answer("Чтение QR.....")  
+    try:
+     decode_qr(new_path)
+      
+     await message.bot.download_file(file.file_path, destination=new_path)
+     await message.answer("Изображение обновлено и сохранено.", reply_markup=main_admin_kb())
+     await state.set_state(BotState.admin)
+    except Exception as _ex:
+     await message.answer("Ошибка при чтении QR. Убедитесь что в изображении нет никаких помех") 
 
 
 async def admin_handler(message: Message, state: FSMContext) -> None:
