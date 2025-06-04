@@ -29,12 +29,13 @@ def check_qr_column():
         
         if 'qr' not in columns:
             cursor.execute("ALTER TABLE BOT ADD COLUMN qr TEXT")
-            conn.commit()
 
 def get_bot_data():
     with get_connection() as conn:
         cursor = conn.cursor()
+        
         check_qr_column()
+        
         cursor.execute("SELECT admin, props, qr FROM Bot LIMIT 1")
         row = cursor.fetchone()
 
