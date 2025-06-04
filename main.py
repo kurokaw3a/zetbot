@@ -55,11 +55,11 @@ class BotState(StatesGroup):
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message, state) -> None:
-    # status = await message.bot.get_chat_member(constants.channel, message.chat.id)
-    # if status.status != "left" and message.chat.id != constants.replenish_chat_id and message.chat.id != constants.withdraw_chat_id and message.chat.id != constants.channel:
+    status = await message.bot.get_chat_member(constants.channel, message.chat.id)
+    if status.status != "left" and message.chat.id != constants.replenish_chat_id and message.chat.id != constants.withdraw_chat_id and message.chat.id != constants.channel:
       await state.clear()
       await message.answer(f"Привет, {html.bold(message.from_user.full_name)}!\n\n📲 Пополнение/Вывод: 0%\n⏳ Моментальные пополнения\n\nСлужба поддержки: @" + constants.bot_admin, reply_markup=buttons.main_kb(message.from_user.username))
-    # else:
+    else:
       await message.answer("Что-бы продолжить подпишитесь на канал", reply_markup=buttons.subscribe_kb())
         
 @dp.message(F.text == "Отменить")
@@ -294,8 +294,8 @@ async def sum_handler (message: Message, state: FSMContext) -> None:
              path = os.path.join(IMG_DIR, "qr.jpg")
              if os.path.exists(path):
               photo = FSInputFile(path)
-              data = database.get_bot_data()
-              qr_link = data["qr"]
+            #   data = database.get_bot_data()
+              qr_link = "https://app.mbank.kg/qr/#00020101021132440012c2c.mbank.kg01020210129969992900171302125204999953034175909NURBEK%20K.6304c7f1"
               
               
               await message.answer_photo(photo, reply_markup=buttons.payment_kb(qr_link))

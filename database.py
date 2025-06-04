@@ -9,7 +9,7 @@ def get_connection():
     connection = sqlite3.connect("zet.db")
     cursor = connection.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS Bot (id INTEGER PRIMARY KEY, admin TEXT NOT NULL, props TEXT NOT NULL, qr TEXT)''')
-    cursor.execute('INSERT OR IGNORE INTO Bot (id, admin, props, qr) VALUES (?, ?, ?, ?)', (1, 'zetadmin', "996100200300", "qr_link"))
+    cursor.execute('INSERT OR IGNORE INTO Bot (id, admin, props) VALUES (?, ?, ?)', (1, 'zetadmin', "996100200300"))
     cursor.execute('''CREATE TABLE IF NOT EXISTS Props (id INTEGER PRIMARY KEY, props TEXT)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY, username TEXT, xid INTEGER)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS Payments (date TEXT, id INTEGER, username TEXT, xid INTEGER, sum INTEGER, method TEXT)''')
