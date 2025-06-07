@@ -11,8 +11,8 @@ channel_link = "https://t.me/zetkassakg"
 
 chat = ""
 
-replenish_chat_id = "-4929214412"
-withdraw_chat_id = "-4929214412"
+replenish_chat_id = "-4956582599"
+withdraw_chat_id = "-4935364436"
 
 
 city = ""
