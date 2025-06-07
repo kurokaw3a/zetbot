@@ -163,7 +163,7 @@ async def admin_ops(message: Message, state: FSMContext) -> None:
                 amount = i[4]
                 method = i[5]
                 
-                text = f"   {date}\n\nID: {user_id}\nПользователь: {username}\n1X ID: {xid}\nСумма: {amount}\nМетод: {method}"
+                text = f"   {date}\n\nID: {user_id}\nПользователь: @{username}\n1X ID: {xid}\nСумма: {amount}\nМетод: {method}"
                 await message.answer(text)
             await message.answer("------------------", reply_markup=main_cancel_kb())    
         
