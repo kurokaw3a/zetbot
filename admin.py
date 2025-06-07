@@ -153,8 +153,21 @@ async def admin_ops(message: Message, state: FSMContext) -> None:
          await state.set_state(EditBot.waiting_for_new_props)
          await message.answer("Введите значение:", reply_markup=main_cancel_kb())
          
+        elif(message.text == "История"):
+            payments = database.get_all_payments()
+            for i in payments:
+                date = i[0]
+                user_id = i[1]
+                username = i[2]
+                xid = i[3]
+                amount = i[4]
+                method = i[5]
+                
+                text = f"   {date}\n\nID: {user_id}\nПользователь: {username}\n1X ID: {xid}\nСумма: {amount}\nМетод: {method}"
+                await message.answer(text)
+            await message.answer("------------------", reply_markup=main_cancel_kb())    
         
     except TypeError:
-        await message.answer("Ошибка :(")
+        await message.answer("Ошибка :(") 
         
         

@@ -33,6 +33,7 @@ def main_admin_kb():
         [KeyboardButton(text="Редактировать реквизиты")],
         [KeyboardButton(text="Загрузить другой QR")],
         [KeyboardButton(text="Добавить реквизит")],
+        [KeyboardButton(text="История")],
         [KeyboardButton(text="Отменить")]
     ]
     keyboard = ReplyKeyboardMarkup(keyboard=kb_list, resize_keyboard=True, one_time_keyboard=True, input_field_placeholder="Что вы хотите сделать?")

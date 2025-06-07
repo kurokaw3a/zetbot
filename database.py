@@ -171,7 +171,13 @@ def get_user_payments(user_id):
         cursor.execute("SELECT * FROM Payments WHERE user_id = ?", (user_id,))
         payments = cursor.fetchall()
         return payments
-            
+
+def get_all_payments():
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Payments")
+        payments = cursor.fetchall()  
+        return payments         
         
         
 def update_withdraw_history(user_id, username, xid, amount, code, method, props):
