@@ -75,6 +75,24 @@ async def cancel_handler(message: Message, state: FSMContext):
 async def ins_handler(message: Message):
    await message.answer("Недоступно", reply_markup=buttons.main_kb(message.from_user.username))
 
+@dp.message(F.text == "👤 Профиль")
+async def profile_handler(message: Message):
+    user = database.get_user_data(message.chat.id)
+    if user:
+     status = await message.bot.get_chat_member(constants.channel, message.chat.id)   
+     points = database.get_user_points(message.chat.id) or 0
+     payments = database.get_user_payments(message.chat.id)
+     replenish_sum = 0
+     
+     if payments:
+      for i in payments:
+         replenish_sum += i[4]
+     if points:
+      level = 1 if points < 10 else 2 if points <= 30 else 3   
+      await message.answer(f"--------- {html.bold(message.from_user.full_name)} ---------\n\nВаш уровень {level}\nСтатус: {"Админ" if status.status == "administrator" or status.status == "creator" else "Пользователь"}\n\n1X ID: {html.code(user)}\nПополнения: {points}\nСумма пополнений: {replenish_sum}", reply_markup=buttons.main_kb(message.from_user.username))
+    else:
+     await message.answer("Нет данных", reply_markup=buttons.main_kb(message.from_user.username))
+
 
 # 
 @dp.message(F.text == "⬆ Пополнить")
@@ -142,6 +160,27 @@ async def bot_qr_handler(message: Message, state: FSMContext):
 async def bot_new_props_handler(message: Message, state: FSMContext):
     await admin.handle_new_props(message, state)
 # 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # 
@@ -227,12 +266,12 @@ async def withdraw_code_handler(message: Message, state: FSMContext) -> None:
         code = message.text
         username = message.from_user.username
         
+        database.update_withdraw_history(message.chat.id, username, xid, amount, code, method, props)
         
         
         await(message.answer("🕘 Ваша заявка в расмотрении...", reply_markup=None))
         
-        # await message.bot.send_message(constants.chat, f"{html.bold('ЗАПРОС НА ВЫВОД')}\n\nПользователь: @{username}\nМетод: {method}\nРеквизит: {html.code(props)}\n1X ID: {html.code(xid)}\nКод: {html.code(code)}\nСумма: {amount}")
-        # await message.bot.send_message(constants.chat, str(message.chat.id))
+
         if message.from_user.username != 'None':
          await message.bot.send_message(constants.withdraw_chat_id, f"{html.bold('ЗАПРОС НА ВЫВОД')}\n\nПользователь: @{username}\nМетод: {method}\nРеквизит: {html.code(props)}\n1X ID: {html.code(xid)}\nКод: {html.code(code)}\nСумма: {amount}")
         else:
@@ -358,14 +397,13 @@ async def check_handler(message: Message, state: FSMContext):
     data = await state.get_data()
     xid = data.get("user_xbet_id")
     method = data.get("replenish")
+    amount = data.get("amount")
+    
     database.update_user(message.chat.id, message.from_user.username, xid)
+    database.update_payment_history(message.chat.id, message.from_user.username, xid, amount, method)
     
     await(message.answer("🕘 Ваша заявка в расмотрении...", reply_markup=None))
     
-    
-    # await message.bot.forward_message(constants.chat, message.chat.id, message.message_id)
-    # await message.bot.send_message(constants.chat, f"Пользователь: @{message.from_user.username}\n1X ID: {html.code(xid)}\nМетод: {method}")
-    # await message.bot.send_message(constants.chat, str(message.chat.id)) 
      
     await message.bot.forward_message(constants.replenish_chat_id, message.chat.id, message.message_id)
     if message.from_user.username != 'None':
@@ -386,7 +424,9 @@ async def query_handler(callback: CallbackQuery) -> None:
 
 @dp.callback_query(lambda c: c.data == "accept")
 async def query_handler(callback: CallbackQuery) -> None:
-       username = database.get_username(callback.message.text)       
+       username = database.get_username(callback.message.text)
+       database.update_user_points(callback.message.text)
+              
        await callback.message.bot.send_message(callback.message.text, "✅ Ваш счет пополнен!", reply_markup=buttons.main_kb(username))
        await callback.message.edit_reply_markup(None)
        await callback.message.edit_text("Одобрен")
@@ -394,6 +434,8 @@ async def query_handler(callback: CallbackQuery) -> None:
 @dp.callback_query(lambda c: c.data == "cancel")
 async def query_handler(callback: CallbackQuery) -> None:       
        username = database.get_username(callback.message.text)
+       database.delete_payment(callback.message.text)
+       
        await callback.message.bot.send_message(callback.message.text, "❌ Ваша заявка была отклонена. Проверьте 1X ID или ЧЕК который вы отправили.\n\nСлужба поддержки: @" + constants.bot_admin, reply_markup=buttons.main_kb(username))
        await callback.message.edit_reply_markup(None)
        await callback.message.edit_text("Отклонён")
@@ -408,6 +450,9 @@ async def query_handler(callback: CallbackQuery) -> None:
 @dp.callback_query(lambda c: c.data == "wcancel")
 async def query_handler(callback: CallbackQuery) -> None:    
        username = database.get_username(callback.message.text)
+       database.delete_withdraw(callback.message.text)
+       
+       
        await callback.message.bot.send_message(callback.message.text, "❌ Ваша заявка была отклонена. Проверьте 1X ID или НОМЕР который вы отправили.\n\nСлужба поддержки: @" + constants.bot_admin, reply_markup=buttons.main_kb(username))
        await callback.message.edit_reply_markup(None)
        await callback.message.edit_text("Отклонён")

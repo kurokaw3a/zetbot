@@ -9,7 +9,6 @@ from buttons import main_admin_kb
 from buttons import main_cancel_kb
 from buttons import main_admin_props_kb
 from buttons import main_admin_props_edit_kb
-# from decoder import decode_qr
 import database
 
 DB_PATH = "ocean.db"

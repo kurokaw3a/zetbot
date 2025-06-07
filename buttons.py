@@ -6,7 +6,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 def main_kb(username):
     kb_list = [
         [KeyboardButton(text="⬆ Пополнить"), KeyboardButton(text="⬇ Вывести")],
-        [KeyboardButton(text="📃 Инструкция")]
+        [KeyboardButton(text="📃 Инструкция"), KeyboardButton(text="👤 Профиль")]
+        
     ]
     if username == "jbn9991" or username == "zetadmin" or username == "@jbb8891" or username == "@zetadmin":
      kb_list.append([KeyboardButton(text="⚙️ Настройки")])

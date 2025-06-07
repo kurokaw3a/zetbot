@@ -11,9 +11,10 @@ def get_connection():
     cursor.execute('''CREATE TABLE IF NOT EXISTS Bot (id INTEGER PRIMARY KEY, admin TEXT NOT NULL, props TEXT NOT NULL, qr TEXT)''')
     cursor.execute('INSERT OR IGNORE INTO Bot (id, admin, props) VALUES (?, ?, ?)', (1, 'zetadmin', "996100200300"))
     cursor.execute('''CREATE TABLE IF NOT EXISTS Props (id INTEGER PRIMARY KEY, props TEXT)''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY, username TEXT, xid INTEGER)''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Payments (date TEXT, id INTEGER, username TEXT, xid INTEGER, sum INTEGER, method TEXT)''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Withdraws (date TEXT, id INTEGER, username TEXT, xid INTEGER, code INTEGER, method TEXT, props TEXT)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY, username TEXT, xid INTEGER, points INTEGER)''')
+    
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Payments (date TEXT, user_id INTEGER, username TEXT, xid INTEGER, sum INTEGER, method TEXT)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Withdraws (date TEXT, user_id INTEGER, username TEXT, xid INTEGER, sum INTEGER, code INTEGER, method TEXT, props TEXT)''')
 
     try:
         yield connection
@@ -105,13 +106,37 @@ def update_user(user_id: int, username: str, xid: int):
 
         if not result:
             cursor.execute(
-                "INSERT INTO Users (id, username, xid) VALUES (?, ?, ?)",
-                (user_id, username, xid)
+                "INSERT INTO Users (id, username, xid, points) VALUES (?, ?, ?, ?)",
+                (user_id, username, xid, 0)
             )
         else:
             current_xid = result[0]
             if current_xid != xid:
                 cursor.execute("UPDATE Users SET xid = ? WHERE id = ?",(xid, user_id))
+
+def update_user_points(user_id):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(Users)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if 'points' not in columns:
+            cursor.execute("ALTER TABLE Users ADD COLUMN points INTEGER")
+            
+        cursor.execute("SELECT points FROM Users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+
+        if row is not None:
+            current_points = row[0] or 0
+            cursor.execute("UPDATE Users SET points = ? WHERE id = ?", (current_points + 1, user_id))
+        else:
+            print(f"User with id {user_id} not found.")
+
+def get_user_points(user_id):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT points FROM Users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        return row[0]
 
 def check_qr_column():
     with get_connection() as conn:
@@ -133,10 +158,30 @@ def update_payment_history(user_id, username, xid, amount, method):
         
         cursor = conn.cursor()
         date = time.strftime("%d.%m.%Y-%H:%M")         
-        cursor.execute("""INSERT INTO Payments (date, id, username, xid, sum, method) VALUES (?, ?, ?, ?, ?, ?)""", (date, user_id, username, xid, amount, method))
+        cursor.execute("""INSERT INTO Payments (date, user_id, username, xid, sum, method) VALUES (?, ?, ?, ?, ?, ?)""", (date, user_id, username, xid, amount, method))
 
-def update_withdraw_history(user_id, username, xid, code, method, props):
+def delete_payment(user_id):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Payments WHERE user_id = ?", (user_id,))
+
+def get_user_payments(user_id):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Payments WHERE user_id = ?", (user_id,))
+        payments = cursor.fetchall()
+        return payments
+            
+        
+        
+def update_withdraw_history(user_id, username, xid, amount, code, method, props):
     with get_connection() as conn:
         cursor = conn.cursor()
         date = time.strftime("%d.%m.%Y-%H:%M")         
-        cursor.execute("""INSERT INTO Withdraws (date, id, username, xid, code, method, props) VALUES (?, ?, ?, ?, ?, ?, ?)""", (date, user_id, username, xid, code, method, props))
+        cursor.execute("""INSERT INTO Withdraws (date, user_id, username, xid, sum, code, method, props) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (date, user_id, username, xid, amount, code, method, props))
+
+def delete_withdraw(user_id):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Withdraws WHERE user_id = ?", (user_id,))
+
