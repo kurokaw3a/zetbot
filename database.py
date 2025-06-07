@@ -1,7 +1,7 @@
 import sqlite3
 from contextlib import contextmanager
-import time
-
+from datetime import datetime
+import pytz
 
 
 @contextmanager
@@ -155,8 +155,10 @@ def update_qr(link: str):
                 
 def update_payment_history(user_id, username, xid, amount, method):
     with get_connection() as conn:
-        
         cursor = conn.cursor()
+        
+        tz = pytz.timezone("Asia/Bishkek")
+        time = datetime.now(tz)
         date = time.strftime("%d.%m.%Y-%H:%M")         
         cursor.execute("""INSERT INTO Payments (date, user_id, username, xid, sum, method) VALUES (?, ?, ?, ?, ?, ?)""", (date, user_id, username, xid, amount, method))
 
@@ -183,7 +185,9 @@ def get_all_payments():
 def update_withdraw_history(user_id, username, xid, amount, code, method, props):
     with get_connection() as conn:
         cursor = conn.cursor()
-        date = time.strftime("%d.%m.%Y-%H:%M")         
+        tz = pytz.timezone("Asia/Bishkek")
+        time = datetime.now(tz)
+        date = time.strftime("%d.%m.%Y-%H:%M")          
         cursor.execute("""INSERT INTO Withdraws (date, user_id, username, xid, sum, code, method, props) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (date, user_id, username, xid, amount, code, method, props))
 
 def delete_withdraw(user_id):
