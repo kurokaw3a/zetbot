@@ -89,7 +89,7 @@ async def profile_handler(message: Message):
          replenish_sum += i[4]
      if points:
       level = 1 if points < 10 else 2 if points <= 30 else 3   
-      await message.answer(f"--------- {html.bold(message.from_user.full_name)} ---------\n\nВаш уровень {level}\nСтатус: {"Админ" if status.status == "administrator" or status.status == "creator" else "Пользователь"}\n\n1X ID: {html.code(user)}\nПополнения: {points}\nСумма пополнений: {replenish_sum}", reply_markup=buttons.main_kb(message.from_user.username))
+      await message.answer(f'--------- {html.bold(message.from_user.full_name)} ---------\n\nВаш уровень {level}\nСтатус: {"Админ" if status.status == "administrator" or status.status == "creator" else "Пользователь"}\n\n1X ID: {html.code(user)}\nПополнения: {points}\nСумма пополнений: {replenish_sum}', reply_markup=buttons.main_kb(message.from_user.username))
     else:
      await message.answer("Нет данных", reply_markup=buttons.main_kb(message.from_user.username))
 
