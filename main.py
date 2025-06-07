@@ -77,7 +77,7 @@ async def ins_handler(message: Message):
 
 @dp.message(F.text == "👤 Профиль")
 async def profile_handler(message: Message):
-    user = database.get_user_data(message.chat.id)
+    user = database.get_user_data(message.chat.id) or 0
     if user:
      status = await message.bot.get_chat_member(constants.channel, message.chat.id)   
      points = database.get_user_points(message.chat.id) or 0
